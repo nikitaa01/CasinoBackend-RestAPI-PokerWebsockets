@@ -2,17 +2,32 @@ import express from 'express'
 import { createServer as createServerHTTP } from 'http'
 import WebSocket from 'ws'
 import { config as dotenvConfig } from 'dotenv'
-import router from './ws/router/ws.router'
+import routerWs from './ws/router/ws.router'
+import routerRest from './rest/routes/index'
+import db from './rest/config/mongo'
+import cron from './rest/services/cron.service'
+import path from 'path'
+import IUser from './rest/interfaces/user.interface'
 
-const app = express()
-const server = createServerHTTP(express)
-const wss = new WebSocket.Server({ server })
 dotenvConfig()
+const app = express()
+const pathPublic = path.join(process.cwd(), 'public')
+app.use(express.static(pathPublic))
+// const server = createServerHTTP(express)
+// const wss = new WebSocket.Server({ server })
+db().then(() => console.log('db connected'))
 
-wss.on('connection', router)
-/* TODO: al cerrarse el servidor, avisar a todas las lobbies */
+// wss.on('connection', routerWs)
 
-app.get('/api', (_req, res) => res.send('hola'))
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: IUser
+    }
+}
+
+app.use(routerRest)
+
+// cron.start()
 
 app.listen(process.env.PORT_REST, () => console.log(`api rest running on port ${process.env.PORT_REST}`))
-server.listen(process.env.PORT_WS, () => console.log(`api ws running on port ${process.env.PORT_WS}`))
+// server.listen(process.env.PORT_WS, () => console.log(`api ws running on port ${process.env.PORT_WS}`))

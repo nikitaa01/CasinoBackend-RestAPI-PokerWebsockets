@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model password_resets {
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@index([email], map: "password_resets_email_index")
+  @@ignore
+}
+
+model subscription_items {
+  id              Int    @id @default(autoincrement()) @db.UnsignedInt
+  subscription_id Int    @db.UnsignedInt
+  stripe_id       String    @unique(map: "subscription_items_stripe_id_unique") @db.VarChar(255)
+  stripe_product  String    @db.VarChar(255)
+  stripe_price    String    @db.VarChar(255)
+  quantity        Int?
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+
+  @@unique([subscription_id, stripe_price], map: "subscription_items_subscription_id_stripe_price_unique")
+}
+
+model subscriptions {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int    @db.UnsignedInt
+  name          String    @db.VarChar(255)
+  stripe_id     String    @unique(map: "subscriptions_stripe_id_unique") @db.VarChar(255)
+  stripe_status String    @db.VarChar(255)
+  stripe_price  String?   @db.VarChar(255)
+  quantity      Int?
+  trial_ends_at DateTime? @db.Timestamp(0)
+  ends_at       DateTime? @db.Timestamp(0)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+
+  @@index([user_id, stripe_status], map: "subscriptions_user_id_stripe_status_index")
+}
+
+model user_extended {
+  id           Int    @id @default(autoincrement())
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  user_id      Int    
+  coin_balance Int       @default(0)
+  avatar_url   String?   @map("avatar-url") @db.VarChar(255)
+  users        users     @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "user_extended_user_id_foreign")
+
+  @@index([user_id], map: "user_extended_user_id_foreign")
+}
+
+model users {
+  id                Int          @id @default(autoincrement()) 
+  name              String          @db.VarChar(255)
+  email             String          @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at DateTime?       @db.Timestamp(0)
+  password          String          @db.VarChar(255)
+  coin_balance      Int             @default(0)
+  remember_token    String?         @db.VarChar(100)
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  stripe_id         String?         @db.VarChar(255)
+  pm_type           String?         @db.VarChar(255)
+  pm_last_four      String?         @db.VarChar(4)
+  trial_ends_at     DateTime?       @db.Timestamp(0)
+  user_extended     user_extended[]
+
+  @@index([stripe_id], map: "users_stripe_id_index")
+}
