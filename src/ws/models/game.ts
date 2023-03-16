@@ -89,7 +89,9 @@ export default class Game {
         const lastRound = this.getLastRound()
         const lowerPlayerBalance = lastRound.getLowerPlayerBalance()
         const lowerPlayerDiference = lastRound.getHighestPersAmount() - lastRound.getPersAmount(lowerPlayerBalance.uid)
-        const maxAmount = (lowerPlayerBalance.balance ?? 0 - lowerPlayerDiference) + lastRound.getHighestPersAmount() - lastRound.getPersAmount(turnPlayer.uid)
+        const maxAmount = lowerPlayerBalance.uid !== turnPlayer.uid
+            ? (lowerPlayerBalance.balance ?? 0 - lowerPlayerDiference) + lastRound.getHighestPersAmount() - lastRound.getPersAmount(turnPlayer.uid)
+            : lowerPlayerBalance.balance ?? 0
         return {
             wsClient: turnPlayer, status: 'WAITING', msg: {...msg, maxAmount, balance: turnPlayer.balance },
         }

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { sign } from 'jsonwebtoken'
-import UserReq from '../interfaces/userReq.interface'
 import { PrismaClient } from '@prisma/client'
 import prismaToIUserParser from '../utils/prismaToIUserParser'
 import IUser from '../interfaces/user.interface'
@@ -22,7 +21,7 @@ const getAll = async (_req: Request, res: Response) => {
     }
 }
 
-const login = async (req: UserReq, res: Response) => {
+const login = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(404).json({ message: 'User not found' })
     }

@@ -7,27 +7,21 @@ import routerRest from './rest/routes/index'
 import db from './rest/config/mongo'
 import cron from './rest/services/cron.service'
 import path from 'path'
-import IUser from './rest/interfaces/user.interface'
 
 dotenvConfig()
 const app = express()
 const pathPublic = path.join(process.cwd(), 'public')
 app.use(express.static(pathPublic))
-// const server = createServerHTTP(express)
-// const wss = new WebSocket.Server({ server })
+const server = createServerHTTP(express)
+const wss = new WebSocket.Server({ server })
 db().then(() => console.log('db connected'))
 
-// wss.on('connection', routerWs)
+wss.on('connection', routerWs)
 
-declare module 'express-serve-static-core' {
-    interface Request {
-        user?: IUser
-    }
-}
 
 app.use(routerRest)
 
-// cron.start()
+cron.start()
 
 app.listen(process.env.PORT_REST, () => console.log(`api rest running on port ${process.env.PORT_REST}`))
-// server.listen(process.env.PORT_WS, () => console.log(`api ws running on port ${process.env.PORT_WS}`))
+server.listen(process.env.PORT_WS, () => console.log(`api ws running on port ${process.env.PORT_WS}`))

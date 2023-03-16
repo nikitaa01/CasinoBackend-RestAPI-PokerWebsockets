@@ -3,6 +3,7 @@ import IRoulette from '../interfaces/roulette.interface'
 
 const create = async (roulette: IRoulette) => {
     const newRoulette = new SRoulette(roulette)
+    newRoulette.save()
     return newRoulette
 }
 

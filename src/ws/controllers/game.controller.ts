@@ -7,11 +7,6 @@ import { clientMsg, lobbyMsg } from "../services/router.service"
 
 const nextPlayerMsg = (game: Game) => {
     const waitingCall = game.getNextPlayerWarning()
-    if (waitingCall?.msg.balance == 0) {
-        const turnPlayer = game.getTurnPlayer()
-        turnPlayer.close()
-        lobbyMsg(game.getLastRound().players, 'LOSE', { uid: turnPlayer.uid })
-    }
     if (!waitingCall) {
         setNewStage(game)
         return
@@ -63,6 +58,21 @@ const setNewStage = (game: Game) => {
             })),
             combinations: winnerRes.combinations,
         })
+        for (const player of game.activePlayers) {
+            if (player.balance == 0) {
+                player.close()
+                lobbyMsg(game.activePlayers, 'LOSE', { uid: player.uid })
+            }
+        }
+        console.log(game.checkIfGameEnd())
+        console.log(game.activePlayers.length)
+        if (game.checkIfGameEnd()) {
+            console.log('game end')
+            /* TODO: guardar en la base de datos el nuevo balance del jugador */
+            const winner = game.activePlayers[0]
+            clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) + Number(lastRound.amount) })
+            winner.close()
+        }
         return
     }
     lobbyMsg(players, 'NEW_STAGE', { stage: lastRound.getActualStageName() })
@@ -97,9 +107,6 @@ const onCall = (player: WsClient, game: Game, diference: number) => {
 }
 
 const onCheck = (player: WsClient, game: Game) => {
-    if (!player.balance) {
-        return
-    }
     const lastRound = game.getLastRound()
     const players = lastRound.players
     const newTurn = new Turn(player.uid, 'CHECK')
@@ -171,15 +178,6 @@ const onExitGame = (player: WsClient, lobby: Lobby) => {
     lastRound.players = lastRound.players.filter(p => p.uid != player.uid)
     /* FIXME: msg provisional, hay que arrgelarlo */
     lobbyMsg(lastRound.players, 'EXITEDE_GAME', { uid: player.uid, tableAmount: lastRound.amount })
-    if (game.checkIfGameEnd()) {
-        /* TODO: guardar en la base de datos el nuevo balance del jugador */
-        const getWinner = lastRound.getWinner()
-        const winner = getWinner.winners[0]
-        const player = game.activePlayers.find(p => p.uid == winner)
-        if (!player || !player.balance) return
-        clientMsg(player, 'GAME_END', { reward: Number(player.balance) + Number(lastRound.amount) })
-        player.close()
-    }
     nextPlayerMsg(game)
 }
 

@@ -7,7 +7,7 @@ import { create, getLast } from '../services/roulette.service'
 const createNumber = async () => {
     const number = Math.floor(Math.random() * 36)
     const roulette: IRoulette = {
-        number: number,
+        number,
     }
     create(roulette)
 }
