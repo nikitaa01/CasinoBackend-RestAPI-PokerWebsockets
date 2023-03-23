@@ -10,15 +10,13 @@ const create = async (user: IUser) => {
     return newUser
 }
 
-const getUser = async (idQuery: number) => {
+const getUserTemplate = async (query: object) => {
     const prisma = new PrismaClient()
     const response = await prisma.users.findUnique({
         include: {
             user_extended: true
         },
-        where: {
-            id: idQuery
-        }
+        where: query
     })
     if (!response) {
         return
@@ -27,21 +25,12 @@ const getUser = async (idQuery: number) => {
     return user
 }
 
+const getUser = async (idQuery: number) => {
+    return await getUserTemplate({ id: idQuery })
+}
+
 const getUserByEmail = async (emailQuery: string) => {
-    const prisma = new PrismaClient()
-    const response = await prisma.users.findUnique({
-        include: {
-            user_extended: true
-        },
-        where: {
-            email: emailQuery
-        }
-    })
-    if (!response) {
-        return
-    }
-    const user: IUser = prismaToIUserParser(response)
-    return user
+    return await getUserTemplate({ email: emailQuery })
 }
 
 export { create, getUser, getUserByEmail }

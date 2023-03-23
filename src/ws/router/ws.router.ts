@@ -113,3 +113,5 @@ const router = (wsClient: WsClient) => {
 }
 
 export default router
+/* TODO: borrar export */
+export { inGameMenu, menu }

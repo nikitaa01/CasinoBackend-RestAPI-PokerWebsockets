@@ -57,7 +57,7 @@ const onStart = (lobby: Lobby) => {
     if (!lobby.game) {
         lobby.game = new Game(wsClients, lobby.reward)
     } else {
-        if (lobby.game.getLastRound().getActualStageName() != 'river') return
+        if (lobby.game.getLastRound().getActualStageName() != 'finish') return
         lobby.game.setNewRound()
     }
     startingRound(lobby.game)

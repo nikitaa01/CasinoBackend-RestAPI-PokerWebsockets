@@ -16,7 +16,6 @@ const nextPlayerMsg = (game: Game) => {
 
 const startingRound = (game: Game) => {
     const lastRound = game.getLastRound()
-    console.log('starting round', lastRound.players.length)
     const players = lastRound.players
     const dealerPlayer = players.at(-1) as WsClient
     lobbyMsg(players, 'DEALER', { client: dealerPlayer.uid })
@@ -42,7 +41,7 @@ const setNewStage = (game: Game) => {
     game.resetLastRaised()
     lastRound.setNewStage()
     // TODO: guardar en la base de datos los resultados
-    if (lastRound.getActualStageName() == 'river') {
+    if (lastRound.getActualStageName() == 'finish') {
         const winnerRes = lastRound.getWinner()
         const eachWinnerProffit = lastRound.amount / winnerRes.winners.length
         game.activePlayers = game.activePlayers.map(p => {
@@ -64,10 +63,7 @@ const setNewStage = (game: Game) => {
                 lobbyMsg(game.activePlayers, 'LOSE', { uid: player.uid })
             }
         }
-        console.log(game.checkIfGameEnd())
-        console.log(game.activePlayers.length)
-        if (game.checkIfGameEnd()) {
-            console.log('game end')
+        if (game.activePlayers.filter(p => p.balance ?? 0 > 0).length == 1) {
             /* TODO: guardar en la base de datos el nuevo balance del jugador */
             const winner = game.activePlayers[0]
             clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) + Number(lastRound.amount) })

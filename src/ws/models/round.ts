@@ -44,14 +44,16 @@ export default class Round {
         if (this.stages.length == 1) return this.stages[0]
         if (this.stages.length == 2) return this.stages[1]
         if (this.stages.length == 3) return this.stages[2]
-        return this.stages[3]
+        if (this.stages.length == 4) return this.stages[3]
+        return this.stages[4]
     }
 
     getActualStageName() {
         if (this.stages.length == 1) return 'preflop'
         if (this.stages.length == 2) return 'flop'
         if (this.stages.length == 3) return 'turn'
-        return 'river'
+        if (this.stages.length == 4) return 'river'
+        return 'finish'
     }
 
     setNewStage() {
@@ -116,13 +118,6 @@ export default class Round {
             player: player.uid,
             combination: Deck.getCombinationValue(player.cards?.concat(commonCards) as Card[])
         }))
-        /* FIXME: borrar los cns */
-        console.log('------------------')
-        for (const iterator of combinations) {
-            console.log(this.players.find(({ uid }) => uid == iterator.player)?.cards?.concat(commonCards))
-            console.log(iterator.player)
-            console.log(iterator.combination)
-        }
         const winners = combinations.reduce((winner, combination) => {
             if (winner[0].player == combination.player) return winner
             if (winner[0].combination.herarchy < combination.combination.herarchy) return winner
@@ -137,7 +132,6 @@ export default class Round {
             return winner
         }, [combinations[0]])
             .map((e) => e?.player)
-        console.log('winners', winners)
         return {
             winners,
             combinations
