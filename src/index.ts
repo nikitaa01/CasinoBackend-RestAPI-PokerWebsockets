@@ -18,7 +18,6 @@ db().then(() => console.log('db connected'))
 
 wss.on('connection', routerWs)
 
-
 app.use(routerRest)
 
 cron.start()

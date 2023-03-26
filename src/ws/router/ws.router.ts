@@ -37,10 +37,6 @@ const menu = (msgParsed: Msg, wsClient: WsClient, lobby: Lobby | undefined) => {
         if (!isExpectedPlayer(wsClient, lobby.game)) return
         inGameMenu(msgParsed, wsClient, lobby.game)
         break
-    case 'FINISH' as any:
-        if (!lobby?.game) throw new Error('No lobby in game')
-        lobbyMsg(lobby.game.getLastRound().players, 'FINISH', lobby.game.getLastRound().getWinner())
-        break
     default:
         onDefault(wsClient)
         console.log('error')
