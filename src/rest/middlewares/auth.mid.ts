@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { verify as jwtVerify } from 'jsonwebtoken'
-import { getUser } from '../services/users.service'
+import { getUser, getUserByEmail } from '../services/users.service'
+import { compare } from 'bcrypt'
 
 const checkToken = async (req: Request) => {
     const token = req.headers.authorization?.split(' ')[1]
@@ -10,19 +11,20 @@ const checkToken = async (req: Request) => {
 const authByToken = (strict = true) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         const token = await checkToken(req)
-        if (!token && strict) 
-            return res.status(401).json({ message: 'No token provided' })
+        if (!token && strict)
+            return res.status(401).json({ message: 'Unauthorized. No token provided' })
         if (!token)
             return next()
         try {
             const decoded = jwtVerify(token, process.env.SECRET as string) as { id: string } | undefined
             if (!decoded?.id) {
-                return res.status(401).json({ message: 'Unauthorized' })
+                return res.status(401).json({ message: 'Unauthorized. No user attached to that token' })
             }
-            const user = await getUser(Number(decoded.id))
-            if (!user)
+            const resFindedUser = await getUser(decoded.id)
+            if (!resFindedUser.ok) {
                 return res.status(404).json({ message: 'User not found' })
-            req.user = user
+            }
+            req.user = resFindedUser.user
             next()
         } catch (error) {
             return res.status(500).json({ message: 'Server error' })
@@ -30,16 +32,17 @@ const authByToken = (strict = true) => {
     }
 }
 
-const authBySecret = async (req: Request, res: Response, next: NextFunction) => {
-    const token = await checkToken(req)
-    if (!token)
-        return res.status(401).json({ message: 'No token provided' })
+const authByPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (token !== process.env.SECRET)
-            return res.status(401).json({ message: 'Unauthorized' })
-        const user = await getUser(Number(req.params.id))
-        if (!user)
-            return res.status(404).json({ message: 'User not found' })
+        const findedUser = await getUserByEmail(req.body.email)
+        if (!findedUser.ok) {
+            return res.status(404).json({ message: `User not found. No user with email: ${req.body.email}` })
+        }
+        const { user } = findedUser
+        if (!compare(req.body.password, user.password)) {
+            console.log('passwords not match')
+            return res.status(401).json({ message: 'Unauthorized. Password doesn\'t match' })
+        }
         req.user = user
         next()
     } catch (error) {
@@ -47,4 +50,4 @@ const authBySecret = async (req: Request, res: Response, next: NextFunction) => 
     }
 }
 
-export { authByToken, authBySecret }
+export { authByToken, authByPassword }
