@@ -1,10 +1,21 @@
-import IUser from "../../src/rest/interfaces/user.interface";
+import session from "express-session";
+import PersUser from "../../src/rest/interfaces/user.interface";
 
+declare module 'express-session' {
+    interface SessionData {
+        token?: string;
+    }
+}
 declare global {
+
     namespace Express {
+        /* export interface Request {
+            user: User
+        } */
+        export interface User extends PersUser { } // eslint-disable-line @typescript-eslint/no-empty-interface
         export interface Request {
-            user: IUser
-        }
-        export interface User extends IUser { } // eslint-disable-line @typescript-eslint/no-empty-interface
-    } 
+            session: session.Session & Partial<session.SessionData>;
+         }
+    }
+    
 }

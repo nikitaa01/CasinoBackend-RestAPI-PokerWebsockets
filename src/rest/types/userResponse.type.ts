@@ -1,5 +1,5 @@
-import IUser from '../interfaces/user.interface'
+import User, { UserPrivate } from '../interfaces/user.interface'
 
-type UserResponse = Promise<{ ok: false, } | { ok: true, user: IUser }>
+type UserResponse = Promise<{ ok: false, } | { ok: true, user: User | UserPrivate }>
 
 export default UserResponse

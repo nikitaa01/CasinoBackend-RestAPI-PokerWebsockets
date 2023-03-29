@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client"
-import IUser from "../interfaces/user.interface"
+import User, { UserPrivate } from "../interfaces/user.interface"
 import { uuid } from "uuidv4"
 import { hash } from "bcrypt"
 import UserResponse from "../types/userResponse.type"
 
-const create = async (user: IUser): UserResponse => {
+const create = async (user: UserPrivate): UserResponse => {
     try {
         const prisma = new PrismaClient()
         user.id = uuid()
         user.password = await hash(user.password, 10)
-        user.avatar_url = `/api/users/avatar/${user.id}}`
+        user.avatar_url = user.avatar_url ?? `/api/users/avatar/${user.id}}`
         const newUser = await prisma.users.create({
             data: user
         })
@@ -20,16 +20,29 @@ const create = async (user: IUser): UserResponse => {
     }
 }
 
-const getUserTemplate = async (query: object): UserResponse => {
+const getUserTemplate = async (password: boolean, query: object): UserResponse => {
     try {
         const prisma = new PrismaClient()
         const response = await prisma.users.findUnique({
-            where: query
+            where: query,
+            select: {
+                id: true,
+                email: true,
+                coin_balance: true,
+                first_name: true,
+                last_name: true,
+                avatar_url: true,
+                oauth_provider: true,
+                oauth_provider_id: true,
+                created_at: true,
+                updated_at: true,
+                password
+            },
         })
         if (!response) {
             return { ok: false }
         }
-        const user: IUser = response
+        const user = password ? response as UserPrivate : response as User
         return { ok: true, user }
     } catch (error) {
         console.log(error)
@@ -38,11 +51,15 @@ const getUserTemplate = async (query: object): UserResponse => {
 }
 
 const getUser = async (idQuery: string) => {
-    return await getUserTemplate({ id: idQuery })
+    return await getUserTemplate(false, { id: idQuery })
 }
 
-const getUserByEmail = async (emailQuery: string) => {
-    return await getUserTemplate({ email: emailQuery })
+const getUserByEmail = async (password: boolean, emailQuery: string) => {
+    return await getUserTemplate(password, { email: emailQuery })
+}
+
+const getUserByOauth = async (oauthQuery: string) => {
+    return await getUserTemplate(false, { oauth_provider_id: oauthQuery })
 }
 
 const updateUser = async (id: string, data: object): UserResponse => {
@@ -55,7 +72,7 @@ const updateUser = async (id: string, data: object): UserResponse => {
         if (!response) {
             return { ok: false }
         }
-        const user: IUser = response
+        const user: User = response
         return { ok: true, user }
     } catch (error) {
         console.log(error)
@@ -63,4 +80,4 @@ const updateUser = async (id: string, data: object): UserResponse => {
     }
 }
 
-export { create, getUser, getUserByEmail, updateUser }
+export { create, getUser, getUserByEmail, updateUser, getUserByOauth }
