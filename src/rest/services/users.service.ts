@@ -2,9 +2,9 @@ import { PrismaClient } from "@prisma/client"
 import User, { UserPrivate } from "../interfaces/user.interface"
 import { uuid } from "uuidv4"
 import { hash } from "bcrypt"
-import UserResponse from "../types/userResponse.type"
+import Response from "../types/response.type"
 
-const create = async (user: UserPrivate): UserResponse => {
+const create = async (user: UserPrivate): Response<User> => {
     try {
         const prisma = new PrismaClient()
         user.id = uuid()
@@ -13,14 +13,14 @@ const create = async (user: UserPrivate): UserResponse => {
         const newUser = await prisma.users.create({
             data: user
         })
-        return { ok: true, user: newUser }
+        return { ok: true, data: newUser }
     } catch (e) {
         console.log(e)
         return { ok: false }
     }
 }
 
-const getUserTemplate = async (password: boolean, query: object): UserResponse => {
+const getUserTemplate = async (password: boolean, query: object): Response<User | UserPrivate> => {
     try {
         const prisma = new PrismaClient()
         const response = await prisma.users.findUnique({
@@ -42,38 +42,47 @@ const getUserTemplate = async (password: boolean, query: object): UserResponse =
         if (!response) {
             return { ok: false }
         }
-        const user = password ? response as UserPrivate : response as User
-        return { ok: true, user }
+        const data = password ? response as UserPrivate : response as User
+        return { ok: true, data }
     } catch (error) {
         console.log(error)
         return { ok: false }
     }
 }
 
-const getUser = async (idQuery: string) => {
-    return await getUserTemplate(false, { id: idQuery })
+const getUser = async (idQuery: string): Response<User> => {
+    const resUser = await getUserTemplate(false, { id: idQuery })
+    if (resUser.ok) {
+        resUser.data = { password: undefined, ...resUser.data } as User
+    }
+    return resUser
 }
 
 const getUserByEmail = async (password: boolean, emailQuery: string) => {
-    return await getUserTemplate(password, { email: emailQuery })
+    const resUser = await getUserTemplate(password, { email: emailQuery })
+    return resUser
 }
 
 const getUserByOauth = async (oauthQuery: string) => {
-    return await getUserTemplate(false, { oauth_provider_id: oauthQuery })
+    const resUser = await getUserTemplate(false, { oauth_provider_id: oauthQuery })
+    if (resUser.ok) {
+        resUser.data = { password: undefined, ...resUser.data } as User
+    }
+    return resUser
 }
 
-const updateUser = async (id: string, data: object): UserResponse => {
+const updateUser = async (id: string, dataToUpdate: object): Response<User> => {
     try {
         const prisma = new PrismaClient()
         const response = await prisma.users.update({
             where: { id },
-            data
+            data: dataToUpdate,
         })
         if (!response) {
             return { ok: false }
         }
-        const user: User = response
-        return { ok: true, user }
+        const data: User = response
+        return { ok: true, data }
     } catch (error) {
         console.log(error)
         return { ok: false }
