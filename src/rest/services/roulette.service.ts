@@ -1,7 +1,7 @@
 import SRoulette from '../models/mongo/roulette.model'
-import IRoulette from '../interfaces/roulette.interface'
+import Roulette from '../interfaces/roulette.interface'
 
-const create = async (roulette: IRoulette) => {
+const create = async (roulette: Roulette) => {
     const newRoulette = new SRoulette(roulette)
     newRoulette.save()
     return newRoulette

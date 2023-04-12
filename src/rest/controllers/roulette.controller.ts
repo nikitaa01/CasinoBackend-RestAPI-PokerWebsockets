@@ -1,12 +1,12 @@
 
 
 import { Request, Response } from 'express'
-import IRoulette from '../interfaces/roulette.interface'
+import Roulette from '../interfaces/roulette.interface'
 import { create, getLast } from '../services/roulette.service'
 
 const createNumber = async () => {
     const number = Math.floor(Math.random() * 36)
-    const roulette: IRoulette = {
+    const roulette: Roulette = {
         number,
     }
     create(roulette)
