@@ -32,8 +32,8 @@ const getUserTemplate = async (password: boolean, query: object): Response<User 
                 first_name: true,
                 last_name: true,
                 avatar_url: true,
-                oauth_provider: true,
-                oauth_provider_id: true,
+                oauth_provider: password,
+                oauth_provider_id: password,
                 created_at: true,
                 updated_at: true,
                 password
