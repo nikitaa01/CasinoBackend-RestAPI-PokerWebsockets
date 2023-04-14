@@ -1,5 +1,5 @@
 import session from "express-session";
-import PersUser from "../../src/rest/interfaces/user.interface";
+import {UserPrivate} from "../../src/rest/interfaces/user.interface";
 
 declare module 'express-session' {
     interface SessionData {
@@ -7,15 +7,11 @@ declare module 'express-session' {
     }
 }
 declare global {
-
     namespace Express {
-        /* export interface Request {
-            user: User
-        } */
-        export interface User extends PersUser { } // eslint-disable-line @typescript-eslint/no-empty-interface
         export interface Request {
+            user?: UserPrivate | User
             session: session.Session & Partial<session.SessionData>;
-         }
+        }
     }
     
 }

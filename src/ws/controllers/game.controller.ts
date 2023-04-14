@@ -35,6 +35,24 @@ const startingRound = (game: Game) => {
     nextPlayerMsg(game)
 }
 
+const quitNoBalancePlayers = (game: Game) => {
+    for (const player of game.activePlayers) {
+        if (player.balance == 0) {
+            player.close()
+            lobbyMsg(game.activePlayers, 'LOSE', { uid: player.uid })
+        }
+    }
+}
+
+const checkEndGame = (game: Game, lastRound: Round) => {
+    if (game.activePlayers.filter(p => p.balance ?? 0 > 0).length == 1) {
+        /* TODO: guardar en la base de datos el nuevo balance del jugador */
+        const winner = game.activePlayers[0]
+        clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) + Number(lastRound.amount) })
+        winner.close()
+    }
+}
+
 const setNewStage = (game: Game) => {
     const lastRound = game.getLastRound()
     const players = lastRound.players
@@ -57,18 +75,8 @@ const setNewStage = (game: Game) => {
             })),
             combinations: winnerRes.combinations,
         })
-        for (const player of game.activePlayers) {
-            if (player.balance == 0) {
-                player.close()
-                lobbyMsg(game.activePlayers, 'LOSE', { uid: player.uid })
-            }
-        }
-        if (game.activePlayers.filter(p => p.balance ?? 0 > 0).length == 1) {
-            /* TODO: guardar en la base de datos el nuevo balance del jugador */
-            const winner = game.activePlayers[0]
-            clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) + Number(lastRound.amount) })
-            winner.close()
-        }
+        quitNoBalancePlayers(game)
+        checkEndGame(game, lastRound)
         return
     }
     lobbyMsg(players, 'NEW_STAGE', { stage: lastRound.getActualStageName() })
@@ -172,6 +180,7 @@ const onExitGame = (player: WsClient, lobby: Lobby) => {
     lastRound.amount += Number(player.balance) ?? 0
     game.activePlayers = game.activePlayers.filter(p => p.uid != player.uid)
     lastRound.players = lastRound.players.filter(p => p.uid != player.uid)
+    checkEndGame(game, lastRound)
     /* FIXME: msg provisional, hay que arrgelarlo */
     lobbyMsg(lastRound.players, 'EXITEDE_GAME', { uid: player.uid, tableAmount: lastRound.amount })
     nextPlayerMsg(game)

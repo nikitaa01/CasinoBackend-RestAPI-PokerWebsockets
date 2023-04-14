@@ -3,7 +3,7 @@ import { authBySession } from "../middlewares/auth.mid"
 
 const router = Router()
 
-router.get('/', (req, res) => {
+router.get('/', authBySession(), (req, res) => {
     res.send(req.session)
 })
 

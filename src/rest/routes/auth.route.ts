@@ -1,16 +1,21 @@
 import { Router } from "express"
-import { login, register } from "../controllers/users.controller"
-import { authByPassword } from "../middlewares/auth.mid"
-import passport from "passport"
+import { googleCallback, redirectToGoogleAuth, login, register, sendResetPassword, confirmResetPassword, callbackResetPassword } from "../controllers/auth.controller"
+import { authByCredentials } from "../middlewares/auth.mid"
 
 const router = Router()
 
 router.post("/register", register)
 
-router.post("/login/", authByPassword, login)
+router.post("/login", authByCredentials, login)
 
-router.get("/login/google", passport.authenticate('google', { scope: ['email', 'profile'] }))
+router.get("/login/google", redirectToGoogleAuth)
 
-router.post("/login/google/callback", passport.authenticate('google', { failureRedirect: '/api/users/login/google' }), login)
+router.get("/login/google/callback", googleCallback)
+
+router.post('/reset-password', sendResetPassword)
+
+router.get('/reset-password/callback', callbackResetPassword)
+
+router.patch('/reset-password/confirm', confirmResetPassword)
 
 export { router }
