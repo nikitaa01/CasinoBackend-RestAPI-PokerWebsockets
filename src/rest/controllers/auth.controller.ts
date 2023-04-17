@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { getGoogleAuthURL, getGoogleToken, getGoogleProfile } from "../services/auth.service";
-import { create, getUserByOauth } from "../services/users.service";
+import { create, getUserByOauth, updatePassword } from "../services/users.service";
 import { UserPrivate } from "../interfaces/user.interface";
 import { generateToken } from "../utils/jwt";
 import { sendResetMail } from "../services/mail.service";
+import { verifyToken } from "../utils/jwt";
 
 const redirectToGoogleAuth = (_req: Request, res: Response) => {
     res.redirect(getGoogleAuthURL());
@@ -60,47 +61,41 @@ const login = async (req: Request, res: Response) => {
 
 // FIXME: arreglar que siempre sale 400
 const sendResetPassword = async ({ body }: any, res: Response) => {
+    console.log(body)
     const { email } = body
     const jwt = generateToken(email, { resetPassword: true })
     const url = new URL(`${process.env.SERVER_ROOT_URI}/api/auth/reset-password/callback` ?? '')
     url.searchParams.append('code', jwt)
-    const mail = sendResetMail(email, url.toString())
+    const mail = await sendResetMail(email, url.toString())
     res.sendStatus(mail ? 200 : 400)
 }
 
 // FIXME: replantear la funcion callbackResetPassword
-const callbackResetPassword = async ({ query }: any, res: Response) => {
+const callbackResetPassword = async (_req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html')
     res.send(`
-    <h1>Reset password</h1>
-    <form>
-        <input name="password">
-        <button type="submit">enviar</button>
-    </form>
+    <div style="width: '100%'">
+        <h1>Reset password</h1>
+        <h1 id="jwt" style="overflow-wrap: anywhere;"></h1>
+    </div>
     <script>
-        const form = document.querySelector('form')
         const query = window.location.search
-        const jwt = new URLSearchParams(params).get('code')
-        form.addEventListener('submit', e => {
-            e.preventDefault()
-            const formData = document.querySelector('input').value
-            fetch('http://localhost:3000/api/auth/reset-password/confirm', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: {
-                    jwt,
-                    password: formData.password
-                }
-            })
-        })
+        const jwt = new URLSearchParams(query).get('code')
+        document.getElementById('jwt').innerHTML = jwt
     </script>
     `)
 }
 
 const confirmResetPassword = async ({ body }: any, res: Response) => {
-    console.log(body)
+    const data = verifyToken(body.jwt) as { id: string, resetPassword: boolean }
+    if (!data.resetPassword) {
+        return res.sendStatus(400)
+    }
+    console.log(data)
+    const resUpdateUser = await updatePassword(data.id, body.password)
+    if (!resUpdateUser.ok) {
+        return res.sendStatus(400)
+    }
     res.sendStatus(200)
 }
 

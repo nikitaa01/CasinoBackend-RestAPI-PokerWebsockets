@@ -89,4 +89,21 @@ const updateUser = async (id: string, dataToUpdate: object): Response<User> => {
     }
 }
 
-export { create, getUser, getUserByEmail, updateUser, getUserByOauth }
+const updatePassword = async (email: string, password: string): Response<null> => {
+    try {
+        const prisma = new PrismaClient()
+        const response = await prisma.users.update({
+            where: { email },
+            data: { password: await hash(password, 10) },
+        })
+        if (!response) {
+            return { ok: false }
+        }
+        return { ok: true, data: null }
+    } catch (error) {
+        console.log(error)
+        return { ok: false }
+    }
+}
+
+export { create, getUser, getUserByEmail, updateUser, getUserByOauth, updatePassword }
