@@ -1,9 +1,7 @@
 import { Request, Response } from 'express'
-import { sign } from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
 import User from '../interfaces/user.interface'
-import { findImagePathByName } from '../services/files.service'
-import { create, getUser } from '../services/users.service'
+import { getUser } from '../services/users.service'
 import { updateUser } from '../services/users.service'
 import { Decimal } from '@prisma/client/runtime/binary'
 

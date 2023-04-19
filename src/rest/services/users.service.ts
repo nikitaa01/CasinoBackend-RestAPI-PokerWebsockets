@@ -27,6 +27,7 @@ const getUserTemplate = async (password: boolean, query: object): Response<User 
             where: query,
             select: {
                 id: true,
+                role: true,
                 email: true,
                 coin_balance: true,
                 first_name: true,

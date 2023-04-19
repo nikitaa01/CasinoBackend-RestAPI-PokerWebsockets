@@ -2,6 +2,7 @@ import { Decimal } from "@prisma/client/runtime/binary"
 
 export default interface User {
     id: string
+    role: 'USER' | 'ADMIN'
     email: string
     coin_balance: Decimal
     first_name: string

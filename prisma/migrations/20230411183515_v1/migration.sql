@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE `users` (
     `id` CHAR(36) NOT NULL,
+    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
     `email` VARCHAR(255) NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `coin_balance` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
