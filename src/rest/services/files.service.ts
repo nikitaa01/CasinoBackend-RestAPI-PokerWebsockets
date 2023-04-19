@@ -5,7 +5,8 @@ const PATH_STORAGE = `${process.cwd()}/public`
 const findImagePathByName = (name: string) => {
     const files = fs.readdirSync(PATH_STORAGE)
     const filteredFiles = files.filter((file) => file.split(".")[0] === name)
-    const filePath = `${PATH_STORAGE}/${filteredFiles[0] ?? 'gif_v1_sinfondo.gif'}`
+    if (filteredFiles.length == 0) return undefined
+    const filePath = `${PATH_STORAGE}/${filteredFiles[0]}`
     return filePath
 }
 

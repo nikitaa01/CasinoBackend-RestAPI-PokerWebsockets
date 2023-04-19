@@ -1,7 +1,7 @@
 import { Schema, model, Model } from 'mongoose'
-import IRoulette from '../../interfaces/roulette.interface'
+import Roulette from '../../interfaces/roulette.interface'
 
-const rouletteSchema = new Schema<IRoulette>(
+const rouletteSchema = new Schema<Roulette>(
     {
         number: {
             type: Number,
@@ -13,6 +13,6 @@ const rouletteSchema = new Schema<IRoulette>(
         versionKey: false,
     })
 
-const rouletteModel: Model<IRoulette> = model('roullete_numbers', rouletteSchema)
+const rouletteModel: Model<Roulette> = model('roullete_numbers', rouletteSchema)
 
 export default rouletteModel
