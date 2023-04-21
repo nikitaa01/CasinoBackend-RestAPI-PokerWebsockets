@@ -5,10 +5,9 @@ import { clientMsg, lobbyMsg } from '../services/router.service'
 import getWsClientsUids from '../utils/getWsClientsUid'
 import Game from '../models/game'
 import { startingRound } from './game.controller'
+import { getUser, updateUser } from '../../rest/services/users.service'
 
-/* FIXME: uid should be fetched  */
-const onConnect = (wsClient: WsClient) => {
-    const uid = gidGenerator(3)
+const onConnect = (uid: string, wsClient: WsClient) => {
     wsClient.uid = uid
     clientMsg(wsClient, 'CONNECTED', { client: uid })
 }
@@ -51,15 +50,57 @@ const onJoin = (lobbies: Lobby[], wsClient: WsClient, gidParam: string) => {
     })
 }
 
-const onStart = (lobby: Lobby) => {
+const onStart = async (lobby: Lobby) => {
     const { wsClients } = lobby
-    lobbyMsg(wsClients, 'STARTED')
-    if (!lobby.game) {
-        lobby.game = new Game(wsClients, lobby.reward)
-    } else {
+    if (lobby.game) {
         if (lobby.game.getLastRound().getActualStageName() != 'finish') return
         lobby.game.setNewRound()
     }
+    const responses = await Promise.allSettled(wsClients.map(wsClient => getUser(wsClient.uid)))
+    const validUsers: {client: WsClient, uid: string, options: {coin_balance: number}}[] = []
+    for (const res of responses) {
+        if (res.status == 'rejected') continue
+        if (!res.value.ok) {
+            continue
+        }
+        const wsClient = wsClients.find(({ uid }) => res.value.ok && uid == res.value.data.id)
+        if (wsClient == undefined) continue
+        if (lobby.reward > Number(res.value.data?.coin_balance)) {
+            clientMsg(wsClient, 'NOT_ENOUGH_COINS', {
+                error: "You don't have enough coins to start the game",
+                coin_balance: res.value.data.coin_balance,
+                reward: lobby.reward
+            })
+            const userId = wsClients.findIndex(({ uid }) => uid == wsClient.uid)
+            wsClients.splice(userId, 1)
+            wsClient.close()
+        } else {
+            validUsers.push({client: wsClient, uid: wsClient.uid, options: { coin_balance: Number(res.value.data?.coin_balance) - lobby.reward }})
+        }
+    }
+    const invalidUsers = wsClients.filter(wsClient => !validUsers.map(e => e.client).includes(wsClient))
+    for (const wsClient of invalidUsers) {
+        wsClient.close()
+        const userId = wsClients.findIndex(({ uid }) => uid == wsClient.uid)
+        wsClients.splice(userId, 1)
+    }
+    if (wsClients.length < 2) {
+        clientMsg(wsClients[0], 'NOT_ENOUGH_PLAYERS', {
+            error: "You need at least 2 players to start the game"
+        })
+        return
+    }
+    for (const { client, uid, options } of validUsers) {
+        const res = await updateUser(uid, options)
+        if (!res.ok) {
+            clientMsg(client, 'ERROR', {
+                error: "An error has ocurred while updating the user"
+            })
+            
+        }
+    }
+    lobbyMsg(wsClients, 'STARTED')
+    lobby.game = new Game(wsClients, lobby.reward)
     startingRound(lobby.game)
 }
 

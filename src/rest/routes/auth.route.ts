@@ -1,10 +1,12 @@
 import { Router } from "express"
 import { googleCallback, redirectToGoogleAuth, login, register, sendResetPassword, confirmResetPassword, callbackResetPassword } from "../controllers/auth.controller"
-import { authByCredentials } from "../middlewares/auth.mid"
+import { authByCredentials, authBySession } from "../middlewares/auth.mid"
+import validateData from "../middlewares/validateData.mid"
+import { userSchema } from "../models/joi/users.model"
 
 const router = Router()
 
-router.post("/register", register)
+router.post("/register", validateData(userSchema, 'body'), authBySession(false), register)
 
 router.post("/login", authByCredentials, login)
 

@@ -17,15 +17,19 @@ const lobbies: Lobby[] = []
  */
 const menu = (msgParsed: Msg, wsClient: WsClient, lobby: Lobby | undefined) => {
     switch (msgParsed.menu) {
+    case 'CONNECT':
+        if (!msgParsed.uid) return onDefault(wsClient)
+        onConnect(msgParsed.uid, wsClient)
+        break
     case 'CREATE':
-        if (lobby) return onDefault(wsClient)
+        if (lobby || !wsClient.uid) return onDefault(wsClient)
         msgParsed.reward && onCreate(lobbies, wsClient, msgParsed.reward)
         break
     case 'JOIN':
-        if (lobby) return onDefault(wsClient)
+        if (lobby || !wsClient.uid) return onDefault(wsClient)
         msgParsed.gid && onJoin(lobbies, wsClient, msgParsed.gid)
         break
-    case 'START': // TODO: si solo hay 1 persona no se puede empezar
+    case 'START':
         lobby && onStart(lobby)
         break
     case 'EXIT':
@@ -81,7 +85,6 @@ const inGameMenu = (msgParsed: Msg, wsClient: WsClient, game: Game) => {
  * @param wsClient the user that triggers the events.
  */
 const router = (wsClient: WsClient) => {
-    onConnect(wsClient)
     wsClient.on('message', (msg: RawData) => {
         try {
             const lobby = lobbies.find(({ gid }) => gid == wsClient.gid)

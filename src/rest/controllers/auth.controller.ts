@@ -43,6 +43,9 @@ const googleCallback = async (req: Request, res: Response) => {
 }
 
 const register = async (req: Request, res: Response) => {
+    if (req.body.role == 'ADMIN' && req.user?.role != 'ADMIN') {
+        return res.status(403).send({ error: "Only admin users can create admin users" })
+    }
     const resFindedUser = await create(req.body)
     if (!resFindedUser.ok) {
         return res.status(401).send({ error: 'User not created' })

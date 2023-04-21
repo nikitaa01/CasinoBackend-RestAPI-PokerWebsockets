@@ -4,9 +4,6 @@ import { findImagePathByName } from '../services/files.service'
 
 const getAvatar = async (req: Request, res: Response) => {
     const fileName = req.params.id
-    if (!fileName) {
-        return res.status(404).send({ message: 'Avatar Not found' })
-    }
     const routeImg = findImagePathByName(fileName)
     if (routeImg) {
         return res.sendFile(routeImg)

@@ -1,3 +1,4 @@
+import { updateUser } from "../../rest/services/users.service"
 import Lobby from "../interfaces/lobby.interface"
 import WsClient from "../interfaces/wsClient.interface"
 import Game from "../models/game"
@@ -39,16 +40,22 @@ const quitNoBalancePlayers = (game: Game) => {
     for (const player of game.activePlayers) {
         if (player.balance == 0) {
             player.close()
+            game.activePlayers.splice(game.activePlayers.indexOf(player), 1)
             lobbyMsg(game.activePlayers, 'LOSE', { uid: player.uid })
         }
     }
 }
 
 const checkEndGame = (game: Game, lastRound: Round) => {
-    if (game.activePlayers.filter(p => p.balance ?? 0 > 0).length == 1) {
-        /* TODO: guardar en la base de datos el nuevo balance del jugador */
+    if (game.activePlayers.filter(p => p.balance ?? -1 > 0).length == 1) {
+        console.log(game.activePlayers[0].balance)
+        console.log( { coin_balance: Number(game.activePlayers[0].balance) + Number(lastRound.amount) })
+        updateUser(game.activePlayers[0].uid, { coin_balance: Number(game.activePlayers[0].balance) })
+            // .then(res => console.log(res))
+            .catch(err => console.log(err))
         const winner = game.activePlayers[0]
-        clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) + Number(lastRound.amount) })
+        lastRound.amount = 0
+        clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) })
         winner.close()
     }
 }
@@ -180,6 +187,14 @@ const onExitGame = (player: WsClient, lobby: Lobby) => {
     lastRound.amount += Number(player.balance) ?? 0
     game.activePlayers = game.activePlayers.filter(p => p.uid != player.uid)
     lastRound.players = lastRound.players.filter(p => p.uid != player.uid)
+    if (game.activePlayers.filter(p => p.balance ?? -1 > 0).length == 1) {
+        let balance = game.activePlayers[0]?.balance
+        if (!balance) {
+            balance = 0
+        }
+        game.activePlayers[0].balance = Number(lastRound.amount) + balance
+        lastRound.amount = 0
+    }
     checkEndGame(game, lastRound)
     /* FIXME: msg provisional, hay que arrgelarlo */
     lobbyMsg(lastRound.players, 'EXITEDE_GAME', { uid: player.uid, tableAmount: lastRound.amount })

@@ -20,6 +20,37 @@ const create = async (user: UserPrivate): Response<User> => {
     }
 }
 
+const getUsers = async (skip?: number, limit?: number): Response<User[]> => {
+    try {
+        const prisma = new PrismaClient()
+        const data = await prisma.users.findMany({
+            select: {
+                id: true,
+                role: true,
+                email: true,
+                coin_balance: true,
+                first_name: true,
+                last_name: true,
+                avatar_url: true,
+                oauth_provider: false,
+                oauth_provider_id: false,
+                created_at: true,
+                updated_at: true,
+                password: false
+            },
+            skip,
+            take: limit
+        })
+        if (!data) {
+            return { ok: false }
+        }
+        return { ok: true, data }
+    } catch (error) {
+        console.log(error)
+        return { ok: false }
+    }
+}
+
 const getUserTemplate = async (password: boolean, query: object): Response<User | UserPrivate> => {
     try {
         const prisma = new PrismaClient()
@@ -90,6 +121,22 @@ const updateUser = async (id: string, dataToUpdate: object): Response<User> => {
     }
 }
 
+const deleteUser = async (id: string): Response<null> => {
+    try {
+        const prisma = new PrismaClient()
+        const response = await prisma.users.delete({
+            where: { id },
+        })
+        if (!response) {
+            return { ok: false }
+        }
+        return { ok: true, data: null }
+    } catch (error) {
+        console.log(error)
+        return { ok: false }
+    }
+}
+
 const updatePassword = async (email: string, password: string): Response<null> => {
     try {
         const prisma = new PrismaClient()
@@ -107,4 +154,4 @@ const updatePassword = async (email: string, password: string): Response<null> =
     }
 }
 
-export { create, getUser, getUserByEmail, updateUser, getUserByOauth, updatePassword }
+export { create, getUser, getUsers, getUserByEmail, updateUser, deleteUser, getUserByOauth, updatePassword }

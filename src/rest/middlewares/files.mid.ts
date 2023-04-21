@@ -22,7 +22,6 @@ const storage = diskStorage({
     },
 })
 
-
 const multerMiddleware = multer({ storage })
 
 export default multerMiddleware

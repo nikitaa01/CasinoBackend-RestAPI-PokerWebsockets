@@ -20,7 +20,7 @@ const authBySession = (strict = true) => {
             if (!resFindedUser.ok) {
                 return res.status(404).json({ message: 'User not found' })
             }
-            req.user = resFindedUser.data
+            req.user = resFindedUser.data as UserPrivate
             next()
         } catch (error) {
             return res.status(500).json({ message: 'Server error' })

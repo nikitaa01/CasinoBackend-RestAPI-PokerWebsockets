@@ -10,13 +10,21 @@ const sendMsg = (status: string, msg?: object) => {
 
 /* FIXME: msg shoud have type */
 const lobbyMsg = (wsClients: WsClient[], status: string, msg?: object) => {
-    for (const wsClient of wsClients) {
-        wsClient.send(sendMsg(status, msg))
+    try {
+        for (const wsClient of wsClients) {
+            wsClient.send(sendMsg(status, msg))
+        }
+    } catch (error) {
+        console.log(error)
     }
 }
 
 const clientMsg = (wsClient: WsClient, status: string, msg?: object) => {
-    wsClient.send(sendMsg(status, msg))
+    try {
+        wsClient.send(sendMsg(status, msg))
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 export { lobbyMsg, clientMsg }
