@@ -56,7 +56,7 @@ const onStart = async (lobby: Lobby) => {
         if (lobby.game.getLastRound().getActualStageName() != 'finish') return
         lobby.game.setNewRound()
     }
-    const responses = await Promise.allSettled(wsClients.map(wsClient => getUser(wsClient.uid)))
+    /* const responses = await Promise.allSettled(wsClients.map(wsClient => getUser(wsClient.uid)))
     const validUsers: {client: WsClient, uid: string, options: {coin_balance: number}}[] = []
     for (const res of responses) {
         if (res.status == 'rejected') continue
@@ -98,7 +98,7 @@ const onStart = async (lobby: Lobby) => {
             })
             
         }
-    }
+    } */
     lobbyMsg(wsClients, 'STARTED')
     lobby.game = new Game(wsClients, lobby.reward)
     startingRound(lobby.game)

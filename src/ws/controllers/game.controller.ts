@@ -48,11 +48,11 @@ const quitNoBalancePlayers = (game: Game) => {
 
 const checkEndGame = (game: Game, lastRound: Round) => {
     if (game.activePlayers.filter(p => p.balance ?? -1 > 0).length == 1) {
-        console.log(game.activePlayers[0].balance)
+        /* console.log(game.activePlayers[0].balance)
         console.log( { coin_balance: Number(game.activePlayers[0].balance) + Number(lastRound.amount) })
         updateUser(game.activePlayers[0].uid, { coin_balance: Number(game.activePlayers[0].balance) })
             // .then(res => console.log(res))
-            .catch(err => console.log(err))
+            .catch(err => console.log(err)) */
         const winner = game.activePlayers[0]
         lastRound.amount = 0
         clientMsg(winner, 'GAME_END', { reward: Number(winner.balance) })
