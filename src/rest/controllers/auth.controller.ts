@@ -13,12 +13,12 @@ const redirectToGoogleAuth = (_req: Request, res: Response) => {
 const googleCallback = async (req: Request, res: Response) => {
     const resToken = await getGoogleToken(req.query.code as string);
     if (!resToken.ok) {
-        return res.status(400).json({ message: 'Can\'t generate token' })
+        return res.status(400).redirect(`${process.env.CLIENT_ROOT_URI}/login`)
     }
     const token = resToken.data;
     const resProfile = await getGoogleProfile(token.access_token, token.id_token);
     if (!resProfile.ok) {
-        return res.status(400).json({ message: 'Can\'t get profile' })
+        return res.status(400).redirect(`${process.env.CLIENT_ROOT_URI}/login`)
     }
     const profile = resProfile.data;
     const resFindedUser = await getUserByOauth(profile.id)
@@ -33,13 +33,13 @@ const googleCallback = async (req: Request, res: Response) => {
             oauth_provider_id: profile.id,
         } as UserPrivate)
         if (!resCreatedUser.ok) {
-            return res.status(400).json({ message: 'Can\'t create user' })
+            return res.status(400).redirect(`${process.env.CLIENT_ROOT_URI}/login`)
         }
         req.session.token = generateToken(resCreatedUser.data.id)
-        return res.status(200).json({ message: 'User created' })
+        return res.redirect(`${process.env.CLIENT_ROOT_URI}`)
     }
     req.session.token = generateToken(resFindedUser.data.id)
-    return res.status(200).json({ message: 'User found' })
+    return res.redirect(`${process.env.CLIENT_ROOT_URI}`)
 }
 
 const register = async (req: Request, res: Response) => {
@@ -55,11 +55,11 @@ const register = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(404).json({ message: 'User not found' })
+        return res.status(404).send({message_code_string: 'user_not_found'})
     }
     const token = generateToken(req.user.id)
     req.session.token = token
-    res.json({ message: 'User found', user: req.user, token })
+    res.send({message_code_string: 'user_fetched', user: req.user})
 }
 
 // FIXME: arreglar que siempre sale 400

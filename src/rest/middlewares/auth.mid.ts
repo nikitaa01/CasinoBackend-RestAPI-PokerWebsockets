@@ -33,11 +33,11 @@ const authByCredentials = async (req: Request, res: Response, next: NextFunction
     try {
         const resFindedUser = await getUserByEmail(true, email)
         if (!resFindedUser.ok) {
-            return res.status(404).json({ message: 'User not found' })
+            return res.status(404).json({ message: 'User not found', field: 'email', message_code_string: 'user_not_found' })
         }
         req.user = resFindedUser.data as UserPrivate
         if (!await bcript.compare(password, req.user.password)) {
-            return res.status(401).json({ message: 'Unauthorized. Wrong password' })
+            return res.status(401).json({ message: 'Unauthorized. Wrong password', field: 'password', message_code_string: 'wrong_password' })
         }
         next()
     } catch (error) {

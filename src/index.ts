@@ -19,13 +19,18 @@ app.use(express.static(pathPublic))
 app.use(morgan('dev'))
 app.use(cors())
 app.use(session({
+    name: 'express.session.id',
     secret: process.env.SECRET as string,
     resave: true,
     saveUninitialized: true,
-}))
+    cookie: {
+        httpOnly: true,
+    },
+}));
+
 
 const server = createServerHTTP(express)
-const wss = new WebSocket.Server({ server })
+const wss = new WebSocket.Server({ server, path: '/ws' })
 
 db().then(() => console.log('db connected'))
 

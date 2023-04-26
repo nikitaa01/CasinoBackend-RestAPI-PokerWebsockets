@@ -9,10 +9,11 @@ const create = async (user: UserPrivate): Response<User> => {
         const prisma = new PrismaClient()
         user.id = uuid()
         user.password = await hash(user.password, 10)
-        user.avatar_url = user.avatar_url ?? `/api/users/avatar/${user.id}}`
+        user.avatar_url = user.avatar_url ?? `/api/avatar/${user.id}`
         const newUser = await prisma.users.create({
             data: user
         })
+        prisma.$disconnect()
         return { ok: true, data: newUser }
     } catch (e) {
         console.log(e)
@@ -41,6 +42,7 @@ const getUsers = async (skip?: number, limit?: number): Response<User[]> => {
             skip,
             take: limit
         })
+        prisma.$disconnect()
         if (!data) {
             return { ok: false }
         }
@@ -74,6 +76,7 @@ const getUserTemplate = async (password: boolean, query: object): Response<User 
         if (!response) {
             return { ok: false }
         }
+        prisma.$disconnect()
         const data = password ? response as UserPrivate : response as User
         return { ok: true, data }
     } catch (error) {
@@ -114,6 +117,7 @@ const updateUser = async (id: string, dataToUpdate: object): Response<User> => {
             return { ok: false }
         }
         const data: User = response
+        prisma.$disconnect()
         return { ok: true, data }
     } catch (error) {
         console.log(error)
@@ -130,6 +134,7 @@ const deleteUser = async (id: string): Response<null> => {
         if (!response) {
             return { ok: false }
         }
+        prisma.$disconnect()
         return { ok: true, data: null }
     } catch (error) {
         console.log(error)
@@ -147,6 +152,7 @@ const updatePassword = async (email: string, password: string): Response<null> =
         if (!response) {
             return { ok: false }
         }
+        prisma.$disconnect()
         return { ok: true, data: null }
     } catch (error) {
         console.log(error)
