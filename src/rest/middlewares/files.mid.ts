@@ -14,6 +14,7 @@ const storage = diskStorage({
         if (!extensions.includes(ext as string)) {
             return cb("Extension not allowed")
         }
+        console.log(file.originalname)
         const fileName = req.user?.id ? `${req.user.id}.${ext}` : `file-${Date.now()}.${ext}`
         if (req.user?.id) {
             await deleteImages(String(req.user.id))

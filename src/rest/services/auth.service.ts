@@ -5,7 +5,7 @@ import Response from '../types/response.type'
 const getGoogleAuthURL = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
     const options = {
-        redirect_uri: `http://localhost:3000/api/auth/login/google/callback`,
+        redirect_uri: `${process.env.ROOT_URI}/api/auth/login/google/callback`,
         client_id: process.env.GOOGLE_CLIENT_ID as string,
         access_type: "offline",
         response_type: "code",
@@ -27,7 +27,7 @@ const getGoogleToken = async (code: string): Response<{
         code,
         client_id: process.env.GOOGLE_CLIENT_ID as string,
         client_secret: process.env.GOOGLE_CLIENT_SECRET as string,
-        redirect_uri: `http://localhost:3000/api/auth/login/google/callback`,
+        redirect_uri: `${process.env.ROOT_URI}/api/auth/login/google/callback`,
         grant_type: "authorization_code",
     };
     const url = `${rootUrl}?${querystring.stringify(options)}`;

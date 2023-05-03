@@ -3,7 +3,7 @@ import config from '../config/nodemailer.config'
 
 const transporter = createTransport(config)
 
-const sendResetMail = (email: string, url: string) => {
+const sendResetMail = (email: string, url: string): Promise<boolean> => {
     return new Promise((resolve) => {
         const mailOptions = {
             from: process.env.NODEMAILER_MAIL,

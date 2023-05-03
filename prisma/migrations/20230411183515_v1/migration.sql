@@ -10,6 +10,7 @@ CREATE TABLE `users` (
     `avatar_url` VARCHAR(255) NOT NULL,
     `oauth_provider` VARCHAR(255) NULL,
     `oauth_provider_id` VARCHAR(255) NULL,
+    `stripe_id` VARCHAR(255) NULL DEFAULT NULL,
     `created_at` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `updated_at` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
 
