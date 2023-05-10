@@ -31,6 +31,10 @@ const updateSelf = async (req: Request, res: Response) => {
     if (!req?.user) {
         return res.status(404).send({ error: 'User not found' })
     }
+    req.body.id = undefined
+    req.body.role = undefined
+    req.body.coin_balance = undefined
+    console.log(req.body)
     const resUpdatedUser = await updateUser(req.user.id, req.body)
     if (!resUpdatedUser.ok) {
         return res.status(409).send({error: 'Can\'t upodate user', message_code_string: 'user_not_updated'})

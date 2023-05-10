@@ -1,6 +1,7 @@
 import { Request } from "express"
 import multer, { diskStorage } from "multer"
 import { deleteImages } from "../services/files.service"
+import { updateUser } from "../services/users.service"
 
 const PATH_STORAGE = `${process.cwd()}/public`
 
@@ -14,9 +15,11 @@ const storage = diskStorage({
         if (!extensions.includes(ext as string)) {
             return cb("Extension not allowed")
         }
-        console.log(file.originalname)
         const fileName = req.user?.id ? `${req.user.id}.${ext}` : `file-${Date.now()}.${ext}`
         if (req.user?.id) {
+            if (req.user.avatar_url.startsWith('http')) {
+                updateUser(req.user.id, {avatar_url: `/api/avatar/${req.user.id}`})
+            }
             await deleteImages(String(req.user.id))
         }
         cb(null, fileName)
