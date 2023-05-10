@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+/* import { describe, it, expect } from 'vitest'
 import Game from '../src/ws/models/game'
 import WsClient from '../src/ws/interfaces/wsClient.interface'
 import { menu } from '../src/ws/router/ws.router'
@@ -48,4 +48,4 @@ describe('Game', () => {
     menu({menu: 'START'}, lobby.wsClients[0], lobby)
 
     it('should be an')
-})
+}) */

@@ -54,8 +54,12 @@ const register = async (req: Request, res: Response) => {
     if (!resCreatedUser.ok) {
         return res.status(401).send({ error: 'User not created' })
     }
-    const token = generateToken(resCreatedUser.data.id)
-    req.session.token = token
+    if (req.body.role == 'ADMIN') {
+        return sendResetPassword({ body: { email: req.body.email } }, res)
+    } else {
+        const token = generateToken(resCreatedUser.data.id)
+        req.session.token = token
+    }
     return res.status(201).send(resCreatedUser.data)
 }
 
@@ -81,7 +85,6 @@ const logout = async (req: Request, res: Response) => {
     })
 }
 
-// FIXME: arreglar que siempre sale 400
 const sendResetPassword = async ({ body }: any, res: Response) => {
     console.log(body)
     const { email } = body

@@ -41,6 +41,7 @@ export default class Deck {
                 herarchy: 5,
             }
         }
+        console.log(cards)
         if (backward && cards[0].value == cards.at(n2)?.value as number + (13 - count)) {
             return Deck.getIsStraightLoop(cards, n2 - 1, count + 1, countForward, backward)
         }
@@ -63,7 +64,7 @@ export default class Deck {
             }
             return false
         })
-        if (cardsUnique.length < 6) {
+        if (cardsUnique.length < 5) {
             return false
         }
         for (let i = (cardsUnique.length - 5); i != -1; i--) {
