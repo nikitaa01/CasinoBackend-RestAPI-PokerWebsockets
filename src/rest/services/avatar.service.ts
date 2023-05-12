@@ -17,7 +17,7 @@ const getSvgImage = util.promisify((fileName: string, callback: any) => { // esl
         });
     } catch (error) {
         console.log(error);
-        return false
+        callback(error)
     }
 });
 

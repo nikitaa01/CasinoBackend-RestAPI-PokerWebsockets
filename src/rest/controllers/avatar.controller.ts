@@ -8,9 +8,13 @@ const getAvatar = async (req: Request, res: Response) => {
     if (routeImg) {
         return res.sendFile(routeImg)
     }
-    const svgImage = await getSvgImage(fileName);
-    res.setHeader('Content-Type', 'image/svg+xml');
-    res.send(svgImage);
+    try {
+        const svgImage = await getSvgImage(fileName);
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.send(svgImage);
+    } catch (error) {
+        return res.sendStatus(500)
+    }
 }
 
 export { getAvatar }

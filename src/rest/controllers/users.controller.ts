@@ -34,10 +34,24 @@ const updateSelf = async (req: Request, res: Response) => {
     req.body.id = undefined
     req.body.role = undefined
     req.body.coin_balance = undefined
-    console.log(req.body)
     const resUpdatedUser = await updateUser(req.user.id, req.body)
     if (!resUpdatedUser.ok) {
         return res.status(409).send({error: 'Can\'t upodate user', message_code_string: 'user_not_updated'})
+    }
+    return res.send(resUpdatedUser.data)
+}
+
+const updateUserController = async (req: Request, res: Response) => {
+    if (!req?.user) {
+        return res.status(404).send({ error: 'User not found' })
+    }
+    if (req.user.role !== 'ADMIN') {
+        return res.status(403).send({ error: 'Forbidden' })
+    }
+    req.body.id = undefined
+    const resUpdatedUser = await updateUser(req.params.id, req.body)
+    if (!resUpdatedUser.ok) {
+        return res.status(409).send({ error: 'Can\'t upodate user', message_code_string: 'user_not_updated' })
     }
     return res.send(resUpdatedUser.data)
 }
@@ -69,4 +83,4 @@ const substractBalance = async (req: Request, res: Response) => {
     return res.status(200).json({ message: 'Balance substracted', user: resUpdateUser.data })
 }
 
-export { getAll, getOne, deleteUser, getSelf, substractBalance, updateSelf }
+export { getAll, getOne, deleteUser, getSelf, substractBalance, updateSelf, updateUserController }

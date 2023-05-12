@@ -54,11 +54,15 @@ const register = async (req: Request, res: Response) => {
     if (!resCreatedUser.ok) {
         return res.status(401).send({ error: 'User not created' })
     }
-    if (req.body.role == 'ADMIN') {
-        return sendResetPassword({ body: { email: req.body.email } }, res)
-    } else {
+    if (req.body.role !== 'ADMIN') {
         const token = generateToken(resCreatedUser.data.id)
         req.session.token = token
+    } else {
+        try {
+            sendResetPassword({ body: { email: req.body.email } } as Request, res)
+        } catch (error) {
+            console.log(error)
+        }
     }
     return res.status(201).send(resCreatedUser.data)
 }
@@ -85,14 +89,18 @@ const logout = async (req: Request, res: Response) => {
     })
 }
 
-const sendResetPassword = async ({ body }: any, res: Response) => {
-    console.log(body)
+const sendResetPassword = async (req: Request, res: Response) => {
+    const { body } = req
     const { email } = body
     const jwt = generateToken(email, { resetPassword: true })
     const url = new URL(`${process.env.ROOT_URI}/forgot-password/callback` ?? '')
     url.searchParams.append('code', jwt)
-    const mail = await sendResetMail(email, url.toString())
-    res.status(mail ? 200 : 400).send({ ok: mail })
+    try {
+        const mail = await sendResetMail(email, url.toString())
+        return res.status(mail ? 200 : 400).send({ ok: mail })
+    } catch (error) {
+        return res.status(500).send({ ok: false })
+    }
 }
 
 const confirmResetPassword = async ({ body, session }: any, res: Response) => {
