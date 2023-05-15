@@ -1,0 +1,13 @@
+import Lobby from "../interfaces/lobby.interface";
+import WsClient from "../interfaces/wsClient.interface";
+import Game from "../models/game";
+declare const startingRound: (game: Game) => void;
+declare const setNewStage: (game: Game) => void;
+declare const isExpectedPlayer: ({ uid }: WsClient, game: Game) => boolean;
+declare const onCall: (player: WsClient, game: Game, diference: number) => void;
+declare const onCheck: (player: WsClient, game: Game) => void;
+declare const onRaise: (player: WsClient, msgParsed: any, diference: number, game: Game) => void;
+declare const onBet: (player: WsClient, msgParsed: any, game: Game) => void;
+declare const onFold: (player: WsClient, game: Game) => void;
+declare const onExitGame: (player: WsClient, lobby: Lobby) => void;
+export { startingRound, setNewStage, isExpectedPlayer, onCall, onCheck, onRaise, onBet, onFold, onExitGame };

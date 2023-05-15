@@ -1,0 +1,17 @@
+"use strict";
+exports.__esModule = true;
+exports.router = void 0;
+var express_1 = require("express");
+var auth_controller_1 = require("../controllers/auth.controller");
+var auth_mid_1 = require("../middlewares/auth.mid");
+var validateData_mid_1 = require("../middlewares/validateData.mid");
+var users_model_1 = require("../models/joi/users.model");
+var router = (0, express_1.Router)();
+exports.router = router;
+router.post("/register", (0, validateData_mid_1["default"])(users_model_1.userSchema, 'body'), (0, auth_mid_1.auth)(false), auth_controller_1.register);
+router.post("/login", auth_mid_1.authByCredentials, auth_controller_1.login);
+router.post("/logout", (0, auth_mid_1.auth)(), auth_controller_1.logout);
+router.get("/login/google", auth_controller_1.redirectToGoogleAuth);
+router.get("/login/google/callback", auth_controller_1.googleCallback);
+router.post('/reset-password', auth_controller_1.sendResetPassword);
+router.patch('/reset-password/confirm', auth_controller_1.confirmResetPassword);

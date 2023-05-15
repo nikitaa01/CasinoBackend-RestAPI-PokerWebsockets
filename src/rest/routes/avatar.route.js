@@ -1,0 +1,12 @@
+"use strict";
+exports.__esModule = true;
+exports.router = void 0;
+var express_1 = require("express");
+var avatar_controller_1 = require("../controllers/avatar.controller");
+var files_mid_1 = require("../middlewares/files.mid");
+var generic_controller_1 = require("../controllers/generic.controller");
+var auth_mid_1 = require("../middlewares/auth.mid");
+var router = (0, express_1.Router)();
+exports.router = router;
+router.get("/:id", avatar_controller_1.getAvatar);
+router.post('/', (0, auth_mid_1.auth)(), files_mid_1["default"].single('avatar'), generic_controller_1.okNoResponse);
