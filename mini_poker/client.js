@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://localhost:3001/ws')
+const socket = new WebSocket('ws://ec2-16-16-207-53.eu-north-1.compute.amazonaws.com/ws')
 let i = 0
 
 

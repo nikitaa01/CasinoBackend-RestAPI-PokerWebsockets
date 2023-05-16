@@ -38,7 +38,7 @@ wss.on('connection', routerWs)
 
 app.use(routerRest)
 
-// cron.start()
+cron.start()
 
 app.listen(process.env.PORT_REST, () => console.log(`api rest running on port ${process.env.PORT_REST}`))
 server.listen(process.env.PORT_WS, () => console.log(`api ws running on port ${process.env.PORT_WS}`))
