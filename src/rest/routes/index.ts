@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { readdirSync } from "fs"
 
-const PATH_ROUTER = `${__dirname}`
+const PATH_ROUTER = `${process.env.ROOT_DIR ?? __dirname}`
 const router = Router()
 
 const cleanFileName = (fileName: string) => {
