@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-const PATH_STORAGE = `${process.cwd()}/public`
+const PATH_STORAGE = `${process.env.ROOT_DIR ?? process.cwd()}/public`
 
 const findImagePathByName = (name: string) => {
     const files = fs.readdirSync(PATH_STORAGE)
