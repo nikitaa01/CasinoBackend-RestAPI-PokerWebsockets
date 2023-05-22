@@ -85,6 +85,10 @@ const inGameMenu = (msgParsed: Msg, wsClient: WsClient, game: Game) => {
  * @param wsClient the user that triggers the events.
  */
 const router = (wsClient: WsClient) => {
+    const pingInterval = setInterval(() => {
+        wsClient.ping()
+    }, 10000)
+
     wsClient.on('message', (msg: RawData) => {
         try {
             const lobby = lobbies.find(({ gid }) => gid == wsClient.gid)
@@ -104,6 +108,7 @@ const router = (wsClient: WsClient) => {
     })
 
     wsClient.on('close', () => {
+        clearInterval(pingInterval)
         const lobby = lobbies.find(({ gid }) => gid == wsClient.gid)
         if (!lobby) return
         onExit(wsClient, lobbies, lobby)
@@ -112,5 +117,4 @@ const router = (wsClient: WsClient) => {
 }
 
 export default router
-/* TODO: borrar export */
 export { inGameMenu, menu }
