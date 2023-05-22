@@ -1,4 +1,4 @@
-import { updateUser } from "../../rest/services/users.service"
+import { addBalance } from "../../rest/services/users.service"
 import Lobby from "../interfaces/lobby.interface"
 import WsClient from "../interfaces/wsClient.interface"
 import Game from "../models/game"
@@ -48,10 +48,7 @@ const quitNoBalancePlayers = (game: Game) => {
 
 const checkEndGame = (game: Game, lastRound: Round) => {
     if (game.activePlayers.filter(p => p.balance ?? -1 > 0).length == 1) {
-        console.log(game.activePlayers[0].balance)
-        console.log( { coin_balance: Number(game.activePlayers[0].balance) + Number(lastRound.amount) })
-        updateUser(game.activePlayers[0].uid, { coin_balance: Number(game.activePlayers[0].balance) })
-            // .then(res => console.log(res))
+        addBalance(game.activePlayers[0].uid, Number(game.activePlayers[0].balance))
             .catch(err => console.log(err))
         const winner = game.activePlayers[0]
         lastRound.amount = 0

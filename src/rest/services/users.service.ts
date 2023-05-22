@@ -125,6 +125,25 @@ const updateUser = async (id: string, dataToUpdate: object): Response<User> => {
     }
 }
 
+const addBalance = async (id: string, amount: number): Response<User> => {
+    try {
+        const prisma = new PrismaClient()
+        const response = await prisma.users.update({
+            where: { id },
+            data: { coin_balance: { increment: amount } },
+        })
+        if (!response) {
+            return { ok: false }
+        }
+        const data: User = response
+        prisma.$disconnect()
+        return { ok: true, data }
+    } catch (error) {
+        console.log(error)
+        return { ok: false }
+    }
+}
+
 const deleteUser = async (id: string): Response<null> => {
     try {
         const prisma = new PrismaClient()
@@ -160,4 +179,4 @@ const updatePassword = async (email: string, password: string): Response<null> =
     }
 }
 
-export { create, getUser, getUsers, getUserByEmail, updateUser, deleteUser, getUserByOauth, updatePassword }
+export { create, getUser, getUsers, getUserByEmail, updateUser, deleteUser, getUserByOauth, updatePassword, addBalance }
