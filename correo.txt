@@ -1,2 +1,0 @@
-correo: pokerapi@outlook.es
-password: Pixel1234

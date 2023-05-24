@@ -13,6 +13,7 @@ const ws_router_1 = __importDefault(require("./ws/router/ws.router"));
 const index_1 = __importDefault(require("./rest/routes/index"));
 const express_session_1 = __importDefault(require("express-session"));
 const mongo_config_1 = __importDefault(require("./rest/config/mongo.config"));
+const cron_service_1 = __importDefault(require("./rest/services/cron.service"));
 const path_1 = __importDefault(require("path"));
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
@@ -35,6 +36,6 @@ const wss = new ws_1.default.Server({ server, path: '/ws' });
 (0, mongo_config_1.default)().then(() => console.log('db connected'));
 wss.on('connection', ws_router_1.default);
 app.use(index_1.default);
-// cron.start()
+cron_service_1.default.start();
 app.listen(process.env.PORT_REST, () => console.log(`api rest running on port ${process.env.PORT_REST}`));
 server.listen(process.env.PORT_WS, () => console.log(`api ws running on port ${process.env.PORT_WS}`));

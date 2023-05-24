@@ -11,10 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteImages = exports.findImagePathByName = void 0;
 const fs_1 = __importDefault(require("fs"));
-const PATH_STORAGE = `${process.cwd()}/public`;
+const PATH_STORAGE = `${(_a = process.env.ROOT_DIR) !== null && _a !== void 0 ? _a : process.cwd()}/public`;
 const findImagePathByName = (name) => {
     const files = fs_1.default.readdirSync(PATH_STORAGE);
     const filteredFiles = files.filter((file) => file.split(".")[0] === name);

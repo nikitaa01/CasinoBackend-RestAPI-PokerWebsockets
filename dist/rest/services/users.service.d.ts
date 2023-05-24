@@ -16,6 +16,7 @@ declare const getUserByOauth: (oauthQuery: string) => Promise<{
     data: User | UserPrivate;
 }>;
 declare const updateUser: (id: string, dataToUpdate: object) => Response<User>;
+declare const addBalance: (id: string, amount: number) => Response<User>;
 declare const deleteUser: (id: string) => Response<null>;
 declare const updatePassword: (email: string, password: string) => Response<null>;
-export { create, getUser, getUsers, getUserByEmail, updateUser, deleteUser, getUserByOauth, updatePassword };
+export { create, getUser, getUsers, getUserByEmail, updateUser, deleteUser, getUserByOauth, updatePassword, addBalance };

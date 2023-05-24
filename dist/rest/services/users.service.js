@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.getUserByOauth = exports.deleteUser = exports.updateUser = exports.getUserByEmail = exports.getUsers = exports.getUser = exports.create = void 0;
+exports.addBalance = exports.updatePassword = exports.getUserByOauth = exports.deleteUser = exports.updateUser = exports.getUserByEmail = exports.getUsers = exports.getUser = exports.create = void 0;
 const client_1 = require("@prisma/client");
 const uuidv4_1 = require("uuidv4");
 const bcrypt_1 = require("bcrypt");
@@ -138,6 +138,26 @@ const updateUser = (id, dataToUpdate) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.updateUser = updateUser;
+const addBalance = (id, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const prisma = new client_1.PrismaClient();
+        const response = yield prisma.users.update({
+            where: { id },
+            data: { coin_balance: { increment: amount } },
+        });
+        if (!response) {
+            return { ok: false };
+        }
+        const data = response;
+        prisma.$disconnect();
+        return { ok: true, data };
+    }
+    catch (error) {
+        console.log(error);
+        return { ok: false };
+    }
+});
+exports.addBalance = addBalance;
 const deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const prisma = new client_1.PrismaClient();

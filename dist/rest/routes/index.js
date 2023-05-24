@@ -22,10 +22,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const fs_1 = require("fs");
-const PATH_ROUTER = `${__dirname}`;
+const PATH_ROUTER = `${(_a = process.env.PATH_ROUTER) !== null && _a !== void 0 ? _a : __dirname}`;
 const router = (0, express_1.Router)();
 const cleanFileName = (fileName) => {
     const file = fileName.split(".").shift();

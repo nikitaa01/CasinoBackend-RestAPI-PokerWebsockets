@@ -52,10 +52,7 @@ const quitNoBalancePlayers = (game) => {
 };
 const checkEndGame = (game, lastRound) => {
     if (game.activePlayers.filter(p => { var _a; return (_a = p.balance) !== null && _a !== void 0 ? _a : -1 > 0; }).length == 1) {
-        console.log(game.activePlayers[0].balance);
-        console.log({ coin_balance: Number(game.activePlayers[0].balance) + Number(lastRound.amount) });
-        (0, users_service_1.updateUser)(game.activePlayers[0].uid, { coin_balance: Number(game.activePlayers[0].balance) })
-            // .then(res => console.log(res))
+        (0, users_service_1.addBalance)(game.activePlayers[0].uid, Number(game.activePlayers[0].balance))
             .catch(err => console.log(err));
         const winner = game.activePlayers[0];
         lastRound.amount = 0;
